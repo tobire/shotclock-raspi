@@ -1,0 +1,94 @@
+<html>
+
+<head>
+    <style>
+        @font-face {
+            font-family: "SevenSegment";
+            src: url('Segment7Standard.otf');
+        }
+
+
+        body {
+            cursor: none;
+            background-color: black;
+            overflow: hidden;
+        }
+
+        #time {
+            text-align: center;
+            font-size: 60vw;
+            font-family: 'SevenSegment';
+            color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="time"></div>
+</body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/jquery-3.4.1.min.js"></script>
+<script>
+    var socket = io('/socket');
+    socket.on('time', function (time) {
+        setTime(time);
+        console.log(time);
+    });
+
+    $(document).keyup(function (e) {
+        if (e.which == 32) {
+            socket.emit('resumepause');
+        } else if (e.which == 8) {
+            socket.emit('reset');
+        }
+    });
+
+    function setTime(time) {
+        stopBlinking();
+        stopBeep();
+
+        if (time < 10)
+            time = '0' + time;
+        $('#time').html(time);
+        if (time == 0) {
+            beep();
+            blinkNumber();
+        }
+    }
+
+    var audio;
+    function beep() {
+        audio = new Audio('censor-beep-7.mp3');
+        audio.play();
+    }
+
+    function stopBeep() {
+        if (audio !== undefined) {
+            audio.pause();
+            audio.load();
+        }
+    }
+
+    var blinkIntervalId;
+    function blinkNumber() {
+        var count = 0;
+        blinkIntervalId = setInterval(function () {
+            var bodyColor = count % 2 == 0 ? 'red' : 'black';
+            var textColor = count % 2 == 0 ? 'black' : 'red';
+            $('body').css('background-color', bodyColor);
+            $('#time').css('color', textColor);
+            count++;
+            if (count >= 6) {
+                stopBlinking();
+            }
+        }, 500);
+    }
+    function stopBlinking() {
+        clearInterval(blinkIntervalId);
+        $('body').css('background-color', 'black');
+        $('#time').css('color', 'red');
+    }
+</script>
+
+</html>
