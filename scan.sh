@@ -1,6 +1,8 @@
 PORT=8060
-NETWORK=192.168.178.0
 RETRY_WAIT=5
+
+OWN_IP=$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+NETWORK="${OWN_IP%.*}.0"
 
 while true; do
 	echo "Scanning for servers in network $NETWORK on port $PORT..."
