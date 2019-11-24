@@ -4,9 +4,12 @@
     <style>
         @font-face {
             font-family: "SevenSegment";
+            src: url('Segment7Standard.otf');
+        }
+        @font-face {
+            font-family: "Cocksure";
             src: url('Cocksure.ttf');
         }
-
 
         body {
             cursor: none;
@@ -19,6 +22,7 @@
             font-size: 60vw;
             font-family: 'SevenSegment';
             color: red;
+            transform: scale(1, 1);
         }
     </style>
 </head>
@@ -35,12 +39,25 @@
         setTime(time);
         console.log(time);
     });
+    socket.on('scale', function (newScale) {
+        scale(newScale);
+    });
+    socket.on('font', function (newFont) {
+        changeFont(newFont);
+    });
 
     $(document).keyup(function (e) {
-        if (e.which == 32) {
+        var key = e.key.length == 1 ? e.key.toLowerCase() : e.key;
+        if (key == ' ') {
             socket.emit('resumepause');
-        } else if (e.which == 8) {
+        } else if (key == 'Backspace') {
             socket.emit('reset');
+        } else if (key == '+') {
+            socket.emit('scaleup');
+        } else if (key == '-') {
+            socket.emit('scaledown');
+        } else if (key == 'f') {
+            socket.emit('nextfont');
         }
     });
 
@@ -88,6 +105,14 @@
         clearInterval(blinkIntervalId);
         $('body').css('background-color', 'black');
         $('#time').css('color', 'red');
+    }
+
+    function scale(newScale) {
+        $('#time').css('transform', 'scale(' + newScale + ', ' + newScale + ')');
+    }
+
+    function changeFont(name) {
+        $('#time').css('font-family', name);
     }
 </script>
 
