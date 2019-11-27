@@ -1,119 +1,130 @@
 <html>
-
-<head>
+  <head>
     <style>
-        @font-face {
-            font-family: "SevenSegment";
-            src: url('Segment7Standard.otf');
-        }
-        @font-face {
-            font-family: "Cocksure";
-            src: url('Cocksure.ttf');
-        }
+      @font-face {
+        font-family: "SevenSegment";
+        src: url("Segment7Standard.otf");
+      }
+      @font-face {
+        font-family: "Cocksure";
+        src: url("Cocksure.ttf");
+      }
 
-        body {
-            cursor: none;
-            background-color: black;
-            overflow: hidden;
-        }
+      body {
+        cursor: none;
+        background-color: black;
+        overflow: hidden;
+      }
 
-        #time {
-            text-align: center;
-            font-size: 60vw;
-            font-family: 'SevenSegment';
-            color: red;
-            transform: scale(1, 1);
-        }
+      #time {
+        text-align: center;
+        font-size: 60vw;
+        font-family: "SevenSegment";
+        color: red;
+        transform: scale(1, 1);
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body oncontextmenu="return false;">
     <div id="time"></div>
-</body>
+  </body>
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="/jquery-3.4.1.min.js"></script>
-<script>
-    var socket = io('/socket');
-    socket.on('time', function (time) {
-        setTime(time);
-        console.log(time);
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/jquery-3.4.1.min.js"></script>
+  <script>
+    var socket = io("/socket");
+    socket.on("time", function(time) {
+      setTime(time);
+      console.log(time);
     });
-    socket.on('scale', function (newScale) {
-        scale(newScale);
+    socket.on("scale", function(newScale) {
+      scale(newScale);
     });
-    socket.on('font', function (newFont) {
-        changeFont(newFont);
+    socket.on("font", function(newFont) {
+      changeFont(newFont);
     });
 
-    $(document).keyup(function (e) {
-        var key = e.key.length == 1 ? e.key.toLowerCase() : e.key;
-        if (key == ' ') {
-            socket.emit('resumepause');
-        } else if (key == 'Backspace') {
-            socket.emit('reset');
-        } else if (key == '+') {
-            socket.emit('scaleup');
-        } else if (key == '-') {
-            socket.emit('scaledown');
-        } else if (key == 'f') {
-            socket.emit('nextfont');
-        }
+    $(document).keyup(function(e) {
+      var key = e.key.length == 1 ? e.key.toLowerCase() : e.key;
+      if (key == " ") {
+        socket.emit("resumepause");
+      } else if (key == "Backspace") {
+        socket.emit("reset");
+      } else if (key == "+") {
+        socket.emit("scaleup");
+      } else if (key == "-") {
+        socket.emit("scaledown");
+      } else if (key == "f") {
+        socket.emit("nextfont");
+      }
+    });
+    $(document).mouseup(function(e) {
+      switch (e.which) {
+        case 1:
+          socket.emit("resumepause");
+          break;
+        case 2:
+          socket.emit("nextfont");
+          break;
+        case 3:
+          socket.emit("reset");
+          break;
+      }
+      e.preventDefault();
     });
 
     function setTime(time) {
-        stopBlinking();
-        stopBeep();
+      stopBlinking();
+      stopBeep();
 
-        if (time < 10)
-            time = '0' + time;
-        $('#time').html(time);
-        if (time == 0) {
-            beep();
-            blinkNumber();
-        }
+      if (time < 10) time = "0" + time;
+      $("#time").html(time);
+      if (time == 0) {
+        beep();
+        blinkNumber();
+      }
     }
 
     var audio;
     function beep() {
-        audio = new Audio('censor-beep-7.mp3');
-        audio.play();
+      audio = new Audio("censor-beep-7.mp3");
+      audio.play();
     }
 
     function stopBeep() {
-        if (audio !== undefined) {
-            audio.pause();
-            audio.load();
-        }
+      if (audio !== undefined) {
+        audio.pause();
+        audio.load();
+      }
     }
 
     var blinkIntervalId;
     function blinkNumber() {
-        var count = 0;
-        blinkIntervalId = setInterval(function () {
-            var bodyColor = count % 2 == 0 ? 'red' : 'black';
-            var textColor = count % 2 == 0 ? 'black' : 'red';
-            $('body').css('background-color', bodyColor);
-            $('#time').css('color', textColor);
-            count++;
-            if (count >= 6) {
-                stopBlinking();
-            }
-        }, 500);
+      var count = 0;
+      blinkIntervalId = setInterval(function() {
+        var bodyColor = count % 2 == 0 ? "red" : "black";
+        var textColor = count % 2 == 0 ? "black" : "red";
+        $("body").css("background-color", bodyColor);
+        $("#time").css("color", textColor);
+        count++;
+        if (count >= 6) {
+          stopBlinking();
+        }
+      }, 500);
     }
     function stopBlinking() {
-        clearInterval(blinkIntervalId);
-        $('body').css('background-color', 'black');
-        $('#time').css('color', 'red');
+      clearInterval(blinkIntervalId);
+      $("body").css("background-color", "black");
+      $("#time").css("color", "red");
     }
 
     function scale(newScale) {
-        $('#time').css('transform', 'scale(' + newScale + ', ' + newScale + ')');
+      $("#time").css("transform", "scale(" + newScale + ", " + newScale + ")");
     }
 
     function changeFont(name) {
-        $('#time').css('font-family', name);
+      $("#time").css("font-family", name);
     }
-</script>
-
+  </script>
 </html>
